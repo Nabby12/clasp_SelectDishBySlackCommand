@@ -2,6 +2,7 @@ const SLACK_VERIFICATIONTOKEN: string = PropertiesService.getScriptProperties().
 const SLACK_WEBHOOK_URL: string = PropertiesService.getScriptProperties().getProperty('SLACK_WEBHOOK_URL');
 const SPREADSHEET_ID: string = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
 const SHEET1NAME: string = PropertiesService.getScriptProperties().getProperty('SHEET1NAME');
+const SENDCOMMENTSTR1: string = PropertiesService.getScriptProperties().getProperty('SENDCOMMENTSTR1');
 
 function doPost(e: string) {
     let verificationToken: string = e.parameter.token;
@@ -15,8 +16,15 @@ function doPost(e: string) {
     let trgtSh = trgtSpreadSheet.getSheetByName(SHEET1NAME);
 
     let dataLastRow = trgtSh.getLastRow();
-    let trgtRow: number = Math.floor(Math.random() * Math.floor(dataLastRow)) + 1;
-    let materials: string = trgtSh.getRange(trgtRow, 2).getValue();
+    let trgtRng = trgtSh.getRange(1, 1, dataLastRow, 2);
+    let trgtAry: string[] = trgtRng.getValues();
+    let trgtRowIndex: number = Math.floor(Math.random() * Math.floor(dataLastRow));
+    
+    // 配列のインデックスは「0」から始まるため「-1」
+    const dishColIndex: number = 1 - 1;
+    const materialColIndex: number = 2 - 1;
+
+    let materials: string = trgtAry[trgtRowIndex][materialColIndex];
 
     if ( arg.length > 0 ) {
         let trgtMaterial: string = arg;
@@ -25,20 +33,20 @@ function doPost(e: string) {
 
         if (materialCnt === -1) {
             do {
-                trgtRow = Math.floor(Math.random() * Math.floor(dataLastRow)) + 1;
-                materials = trgtSh.getRange(trgtRow, 2).getValue();
+                trgtRowIndex = Math.floor(Math.random() * Math.floor(dataLastRow));
+                materials = trgtAry[trgtRowIndex][materialColIndex];
 
                 materialCnt = materials.indexOf(trgtMaterial);
             } while (materialCnt === -1);
         }
     }
 
-    let trgtDish: string = trgtSh.getRange(trgtRow, 1).getValue();
+    let trgtDish: string = trgtAry[trgtRowIndex][dishColIndex];
 
     let sendComment: string = 
     `${ trgtDish }
 
-材料：${ materials }`
+${ SENDCOMMENTSTR1}：${ materials }`
     
     PostMessageToSlack(sendComment);
     
