@@ -3,6 +3,7 @@ const SLACK_WEBHOOK_URL: string = PropertiesService.getScriptProperties().getPro
 const SPREADSHEET_ID: string = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
 const SHEET1NAME: string = PropertiesService.getScriptProperties().getProperty('SHEET1NAME');
 const SENDCOMMENTSTR1: string = PropertiesService.getScriptProperties().getProperty('SENDCOMMENTSTR1');
+const SENDCOMMENTSTR2: string = PropertiesService.getScriptProperties().getProperty('SENDCOMMENTSTR2');
 
 function doPost(e: string) {
     let verificationToken: string = e.parameter.token;
@@ -18,35 +19,47 @@ function doPost(e: string) {
     let dataLastRow = trgtSh.getLastRow();
     let trgtRng = trgtSh.getRange(1, 1, dataLastRow, 2);
     let trgtAry: string[] = trgtRng.getValues();
-    let trgtRowIndex: number = Math.floor(Math.random() * Math.floor(dataLastRow));
+    let trgtRowIndex: number = Math.floor(Math.random() * dataLastRow);
     
     // 配列のインデックスは「0」から始まるため「-1」
     const dishColIndex: number = 1 - 1;
     const materialColIndex: number = 2 - 1;
 
-    let materials: string = trgtAry[trgtRowIndex][materialColIndex];
+    let noMatchFlg: boolean = false;
 
-    if ( arg.length > 0 ) {
+    if (arg.length > 0) {        
         let trgtMaterial: string = arg;
-
-        let materialCnt: number = materials.indexOf(trgtMaterial);
-
-        if (materialCnt === -1) {
-            do {
-                trgtRowIndex = Math.floor(Math.random() * Math.floor(dataLastRow));
-                materials = trgtAry[trgtRowIndex][materialColIndex];
-
-                materialCnt = materials.indexOf(trgtMaterial);
-            } while (materialCnt === -1);
+        let trgtMaterialRowsIndexAry: number[] = new Array;
+        
+        trgtAry.forEach(function(el, index) {
+            if (el[materialColIndex].indexOf(trgtMaterial) != -1){
+                trgtMaterialRowsIndexAry.push(index);
+            }
+        });
+        
+        if (trgtMaterialRowsIndexAry.length === 0) {
+            noMatchFlg = true;
+        } else {
+            let trgtIndex: number = Math.floor(Math.random() * trgtMaterialRowsIndexAry.length);
+            trgtRowIndex = trgtMaterialRowsIndexAry[trgtIndex];
         }
     }
 
     let trgtDish: string = trgtAry[trgtRowIndex][dishColIndex];
+    let materials: string = trgtAry[trgtRowIndex][materialColIndex];
 
-    let sendComment: string = 
-    `${ trgtDish }
+    let sendComment: string;
+    if (noMatchFlg === true) {
+        sendComment = `${ trgtDish }
+
+${ SENDCOMMENTSTR1}：${ materials }
+
+${ SENDCOMMENTSTR2 }`
+    } else {
+        sendComment = `${ trgtDish }
 
 ${ SENDCOMMENTSTR1}：${ materials }`
+    }
     
     PostMessageToSlack(sendComment);
     
