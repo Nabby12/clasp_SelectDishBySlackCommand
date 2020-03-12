@@ -4,6 +4,7 @@ const SPREADSHEET_ID: string = PropertiesService.getScriptProperties().getProper
 const SHEET1NAME: string = PropertiesService.getScriptProperties().getProperty('SHEET1NAME');
 const SENDCOMMENTSTR1: string = PropertiesService.getScriptProperties().getProperty('SENDCOMMENTSTR1');
 const SENDCOMMENTSTR2: string = PropertiesService.getScriptProperties().getProperty('SENDCOMMENTSTR2');
+const SPREADSHEET_URL: string = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_URL');
 
 function doPost(e: string) {
     let verificationToken: string = e.parameter.token;
@@ -12,6 +13,14 @@ function doPost(e: string) {
     }
     
     let arg: string = e.parameter.text.trim();
+
+    if (arg.length > 0) {
+        let tmpAry: string[] = arg.split(' ');
+        if (tmpAry[0] === 'URL') {
+            PostMessageToSlack(SPREADSHEET_URL);
+            return ContentService.createTextOutput();
+        }
+    }
 
     let trgtSpreadSheet = SpreadsheetApp.openById(SPREADSHEET_ID);
     let trgtSh = trgtSpreadSheet.getSheetByName(SHEET1NAME);
