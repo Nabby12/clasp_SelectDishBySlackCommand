@@ -13,6 +13,7 @@ function doPost(e: string) {
     }
     
     let arg: string = e.parameter.text.trim();
+    arg = arg.replace('　',' ');
 
     if (arg.length > 0) {
         let tmpAry: string[] = arg.split(' ');
@@ -37,14 +38,35 @@ function doPost(e: string) {
     let noMatchFlg: boolean = false;
 
     if (arg.length > 0) {        
-        let trgtMaterial: string = arg;
+        let trgtMaterial: string[] = arg.split(' ';
         let trgtMaterialRowsIndexAry: number[] = new Array;
         
         trgtAry.forEach(function(el, index) {
-            if (el[materialColIndex].indexOf(trgtMaterial) != -1){
+            if (el[materialColIndex].indexOf(trgtMaterial[0]) != -1){
                 trgtMaterialRowsIndexAry.push(index);
             }
         });
+        
+        // 材料が二つ以上指定されていたら、さらに結果を絞り込む
+        if (trgtMaterial.length > 1) {
+            for(let i = 1; i <= trgtMaterial.length - 1; i++) {
+                let tmpRowIndexAry: number[] = new Array;
+                trgtMaterialRowsIndexAry.forEach(function(el, index) {
+                    if (trgtAry[el][materialColIndex].indexOf(trgtMaterial[i]) != -1){
+                        tmpRowIndexAry.push(trgtMaterialRowsIndexAry[index]);
+                    }
+                }
+                if (tmpRowIndexAry.length === 0){
+                    trgtMaterialRowsIndexAry = new Array;
+                    break;
+                }
+                
+                trgtMaterialRowsIndexAry = new Array
+                tmpRowIndexAry.forEach(function(el) {
+                    trgtMaterialRowsIndexAry.push(el);
+                });
+            }
+        }
         
         if (trgtMaterialRowsIndexAry.length === 0) {
             noMatchFlg = true;
