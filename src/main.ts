@@ -13,8 +13,8 @@ function doPost(e: string) {
     }
     
     let arg: string = e.parameter.text.trim();
-    arg = arg.replace('　',' ');
-
+    arg = arg.replace(/　/g, " ");
+    
     if (arg.length > 0) {
         let tmpAry: string[] = arg.split(' ');
         if (tmpAry[0] === 'URL') {
@@ -28,7 +28,7 @@ function doPost(e: string) {
 
     let dataLastRow = trgtSh.getLastRow();
     let trgtRng = trgtSh.getRange(1, 1, dataLastRow, 2);
-    let trgtAry: string[] = trgtRng.getValues();
+    let trgtAry: any[] = trgtRng.getValues();
     let trgtRowIndex: number = Math.floor(Math.random() * dataLastRow);
     
     // 配列のインデックスは「0」から始まるため「-1」
@@ -38,7 +38,7 @@ function doPost(e: string) {
     let noMatchFlg: boolean = false;
 
     if (arg.length > 0) {        
-        let trgtMaterial: string[] = arg.split(' ';
+        let trgtMaterial: string[] = arg.split(' ');
         let trgtMaterialRowsIndexAry: number[] = new Array;
         
         trgtAry.forEach(function(el, index) {
