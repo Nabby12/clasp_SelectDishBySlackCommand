@@ -13,8 +13,8 @@ function doPost(e: string) {
     }
     
     let arg: string = e.parameter.text.trim();
-    arg = arg.replace(/　/g, " ");
-    
+    arg = arg.replace(/　/g, ' ');
+
     if (arg.length > 0) {
         let tmpAry: string[] = arg.split(' ');
         if (tmpAry[0] === 'URL') {
